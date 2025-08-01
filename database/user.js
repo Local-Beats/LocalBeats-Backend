@@ -16,11 +16,11 @@ const User = db.define("user", {
       len: [1, 30],
     },
   },
-  // auth0Id: {
-  //   type: DataTypes.STRING,
-  //   allowNull: true,
-  //   unique: true,
-  // },
+  auth0Id: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    unique: true,
+  },
   // passwordHash: {
   //   type: DataTypes.STRING,
   //   allowNull: true,
