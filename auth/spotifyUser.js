@@ -6,6 +6,8 @@ const { User } = require("../database");
 
 router.post("/", authenticateJWT, async (req, res) => {
     try {
+        const authOId = req.user.sub;
+
         const {
             id: userId,
             username,
@@ -25,7 +27,7 @@ router.post("/", authenticateJWT, async (req, res) => {
 
         // check if user exist if not then create it
         const [user, created] = await User.findOrCreate({
-            where: { id: userId },
+            where: { authOId },
             defaults: {
                 username: username || spotifyProfile.display_name,
                 email: email || spotifyProfile.email,

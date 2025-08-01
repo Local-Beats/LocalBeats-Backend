@@ -170,7 +170,7 @@ router.post("/login", async (req, res) => {
     // Find user
     const user = await User.findOne({ where: { username } });
     user.checkPassword(password);
-    if (!user) {
+    if (!user || !user.checkPassword(password)) {
       return res.status(401).send({ error: "Invalid credentials" });
     }
 
@@ -193,7 +193,7 @@ router.post("/login", async (req, res) => {
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: process.env.NODE_ENV === "production" || req.secure,
       sameSite: "strict",
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
     });
