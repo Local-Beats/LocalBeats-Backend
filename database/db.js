@@ -1,14 +1,16 @@
+// db/index.js
+
 require("dotenv").config();
 const { Sequelize } = require("sequelize");
-const pg = require("pg");
 
-// Feel free to rename the database to whatever you want!
-const dbName = "capstone-1";
+// Database name
+const dbName = "capstone-2";
 
+// Create Sequelize instance
 const db = new Sequelize(
   process.env.DATABASE_URL || `postgres://localhost:5432/${dbName}`,
   {
-    logging: false, // comment this line to enable SQL logging
+    logging: false, // Set to true if you want to see raw SQL logs
   }
 );
 

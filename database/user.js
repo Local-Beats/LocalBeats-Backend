@@ -28,6 +28,11 @@ const User = db.define("user", {
     type: DataTypes.STRING,
     allowNull: true,
   },
+  spotifyAccessToken: {
+  type: DataTypes.TEXT,
+  allowNull: true,
+},
+
 });
 
 // Instance method to check password

@@ -1,10 +1,13 @@
 const express = require("express");
 const axios = require("axios");
-const { authenticateJWT } = require("./Auth");
+const { authenticateJWT } = require("../auth");
 
 const router = express.Router();
 
 router.get("/current-track", authenticateJWT, async (req, res) => {
+  // ✅ Debug log: show the user object decoded from JWT
+  console.log("Authenticated user:", req.user);
+
   const accessToken = req.user?.spotifyAccessToken;
 
   if (!accessToken) {

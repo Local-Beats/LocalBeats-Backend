@@ -26,7 +26,7 @@ const authenticateJWT = (req, res, next) => {
 // Auth0 authentication route
 router.post("/auth0", async (req, res) => {
   try {
-    const { auth0Id, email, username } = req.body;
+    const { auth0Id, email, username, spotifyAccessToken } = req.body;
 
     if (!auth0Id) {
       return res.status(400).send({ error: "Auth0 ID is required" });
@@ -51,7 +51,7 @@ router.post("/auth0", async (req, res) => {
       const userData = {
         auth0Id,
         email: email || null,
-        username: username || email?.split("@")[0] || `user_${Date.now()}`, // Use email prefix as username if no username provided
+        username: username || email?.split("@")[0] || `user_${Date.now()}`,
         passwordHash: null, // Auth0 users don't have passwords
       };
 
@@ -67,13 +67,20 @@ router.post("/auth0", async (req, res) => {
       user = await User.create(userData);
     }
 
-    // Generate JWT token with auth0Id included
+    // ✅ Save Spotify access token if present
+    if (spotifyAccessToken) {
+      user.spotifyAccessToken = spotifyAccessToken;
+      await user.save();
+    }
+
+    // ✅ Generate JWT token with spotifyAccessToken included
     const token = jwt.sign(
       {
         id: user.id,
         username: user.username,
         auth0Id: user.auth0Id,
         email: user.email,
+        spotifyAccessToken: user.spotifyAccessToken || null,
       },
       JWT_SECRET,
       { expiresIn: "24h" }
@@ -93,6 +100,7 @@ router.post("/auth0", async (req, res) => {
         username: user.username,
         auth0Id: user.auth0Id,
         email: user.email,
+        spotifyAccessToken: user.spotifyAccessToken || null,
       },
     });
   } catch (error) {
@@ -128,7 +136,6 @@ router.post("/signup", async (req, res) => {
     const passwordHash = User.hashPassword(password);
     const user = await User.create({ username, passwordHash });
 
-    // Generate JWT token
     const token = jwt.sign(
       {
         id: user.id,
@@ -144,7 +151,7 @@ router.post("/signup", async (req, res) => {
       httpOnly: true,
       secure: true,
       sameSite: "strict",
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      maxAge: 24 * 60 * 60 * 1000,
     });
 
     res.send({
@@ -167,19 +174,12 @@ router.post("/login", async (req, res) => {
       return;
     }
 
-    // Find user
     const user = await User.findOne({ where: { username } });
-    user.checkPassword(password);
-    if (!user) {
+
+    if (!user || !user.checkPassword(password)) {
       return res.status(401).send({ error: "Invalid credentials" });
     }
 
-    // Check password
-    if (!user.checkPassword(password)) {
-      return res.status(401).send({ error: "Invalid credentials" });
-    }
-
-    // Generate JWT token
     const token = jwt.sign(
       {
         id: user.id,
@@ -195,7 +195,7 @@ router.post("/login", async (req, res) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      maxAge: 24 * 60 * 60 * 1000,
     });
 
     res.send({
@@ -214,7 +214,7 @@ router.post("/logout", (req, res) => {
   res.send({ message: "Logout successful" });
 });
 
-// Get current user route (protected)
+// Get current user route
 router.get("/me", (req, res) => {
   const token = req.cookies.token;
 
@@ -226,7 +226,7 @@ router.get("/me", (req, res) => {
     if (err) {
       return res.status(403).send({ error: "Invalid or expired token" });
     }
-    res.send({ user: user });
+    res.send({ user });
   });
 });
 
