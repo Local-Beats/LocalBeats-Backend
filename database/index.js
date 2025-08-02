@@ -1,6 +1,6 @@
 const db = require("./db");
 const User = require("./user");
-const Listening_session = require("./listeningSession");
+const Song = require("./song");
 const Playlist = require("./playlist");
 const PlaylistSong = require("./playlistSong");
 const ListeningSession = require("./listeningSession");
@@ -8,7 +8,8 @@ const ListeningSession = require("./listeningSession");
 module.exports = {
   db,
   User,
-  ListeningSession,
+  Song,
   Playlist,
   PlaylistSong,
+  ListeningSession,
 };
