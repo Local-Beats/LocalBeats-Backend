@@ -1,10 +1,10 @@
 const express = require("express");
 const router = express.Router();
-const { authenticateJWT } = require("../auth");
+const { authenticateJWT } = require(".");
 const axios = require('axios');
 const { User } = require("../database");
 
-router.post("/", authenticateJWT, async (req, res) => {
+router.post("/sync", authenticateJWT, async (req, res) => {
     try {
         const authOId = req.user.sub;
 
@@ -53,3 +53,5 @@ router.post("/", authenticateJWT, async (req, res) => {
         res.status(500).send({ error: 'Failed to create or update user' });
     }
 });
+
+module.exports = router;
