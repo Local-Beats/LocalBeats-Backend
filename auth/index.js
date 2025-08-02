@@ -7,7 +7,7 @@ const spotifyRoutes = require("./spotify");
 
 
 router.use("/", localRoutes);
-router.use("/authO", auth0Routes);
+router.use("/auth0", auth0Routes);
 router.use("/spotify", spotifyRoutes);
 
 
