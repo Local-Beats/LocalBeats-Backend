@@ -11,8 +11,4 @@ router.use("/auth0", auth0Routes);
 router.use("/spotify", spotifyRoutes);
 
 
-
-
-
-
 module.exports = router;

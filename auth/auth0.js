@@ -6,7 +6,7 @@ const { User } = require("../database");
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 
 // Auth0 authentication route
-router.post("/auth0", async (req, res) => {
+router.post("/", async (req, res) => {
     try {
         const { auth0Id, email, username } = req.body;
 
