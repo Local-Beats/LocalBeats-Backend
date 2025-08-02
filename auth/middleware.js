@@ -22,4 +22,4 @@ const authenticateJWT = (req, res, next) => {
     });
 };
 
-module.exports = authenticateJWT;
+module.exports = { authenticateJWT };

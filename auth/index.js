@@ -15,12 +15,4 @@ router.use("/spotify", spotifyRoutes);
 
 
 
-
-
-
-
-
-
-
-
-module.exports = { router };
+module.exports = router;

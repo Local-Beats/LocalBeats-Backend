@@ -2,8 +2,6 @@ const express = require("express");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
 const { User } = require("../database");
-const { authenticateJWT } = require("./middleware");
-
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 
 // Signup route---------------------------------------------------------------
