@@ -33,7 +33,6 @@ const User = db.define("user", {
   spotify_access_token: {
     type: DataTypes.STRING,
     allowNull: false,
-    unique: true,
   },
   spotify_email: {
     type: DataTypes.STRING,
@@ -46,7 +45,6 @@ const User = db.define("user", {
   spotify_display_name: {
     type: DataTypes.STRING,
     allowNull: true,
-    unique: true,
     validate: {
       len: [1, 30],
     },
@@ -60,7 +58,7 @@ const User = db.define("user", {
     allowNull: true,
   },
   last_seen: {
-    type: DataTypes.TIMESTAMP,
+    type: DataTypes.DATE,
     allowNull: true,
   },
   is_public: {
@@ -73,14 +71,9 @@ const User = db.define("user", {
     allowNull: false,
     defaultValue: false,
   },
-  created_at: {
-    type: DataTypes.TIMESTAMP,
-    allowNull: false,
-  },
-  updated_at: {
-    type: DataTypes.TIMESTAMP,
-    allowNull: true,
-  },
+}, {
+  underscored: true, // auto adds created_at and updated_at correctly
+  timestamps: true,  // enable Sequelize to auto-manage createdAt/updatedAt
 });
 
 // Instance method to check password
