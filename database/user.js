@@ -72,8 +72,8 @@ const User = db.define("user", {
     defaultValue: false,
   },
 }, {
-  underscored: true, // auto adds created_at and updated_at correctly
   timestamps: true,  // enable Sequelize to auto-manage createdAt/updatedAt
+  underscored: true, // auto adds created_at and updated_at correctly
 });
 
 // Instance method to check password

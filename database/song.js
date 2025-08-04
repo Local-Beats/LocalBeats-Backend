@@ -32,14 +32,9 @@ const Song = db.define("song", {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  created_at: {
-    type: DataTypes.TIMESTAMP,
-    allowNull: true,
-  },
-  updated_at: {
-    type: DataTypes.TIMESTAMP,
-    allowNull: true,
-  },
+}, {
+  timestamps: true,  // enable Sequelize to auto-manage createdAt/updatedAt
+  underscored: true, // auto adds created_at and updated_at correctly
 });
 
 module.exports = Song;
