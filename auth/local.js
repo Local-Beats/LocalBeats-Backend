@@ -122,18 +122,38 @@ router.post("/logout", (req, res) => {
 
 
 // Get current user route (protected)---------------------------------------------
-router.get("/me", (req, res) => {
+router.get("/me", async (req, res) => {
     const token = req.cookies.token;
+    console.log("🍪 Token from cookie:", token);
 
     if (!token) {
+        console.log("❌ No token found in cookie");
         return res.send({});
     }
 
-    jwt.verify(token, JWT_SECRET, (err, user) => {
+    jwt.verify(token, JWT_SECRET, async (err, decodedUser) => {
         if (err) {
+            console.error("❌ JWT verify error:", err.message);
             return res.status(403).send({ error: "Invalid or expired token" });
         }
-        res.send({ user: user });
+        console.log("✅ Decoded user from token:", decodedUser);
+
+        try {
+            const fullUser = await User.findOne({ where: { id: decodedUser.id } });
+
+            if (!fullUser) {
+                console.log("❌ No user found in DB");
+                return res.status(404).send({ error: "User not found" });
+            }
+            console.log("✅ Full user fetched from DB:", {
+                id: fullUser.id,
+                username: fullUser.username
+            });
+            res.send({ user: fullUser });
+        } catch (err) {
+            console.error("DB error in /auth/me:", err);
+            res.status(500).send({ error: "Failed to fetch user" });
+        }
     });
 });
 

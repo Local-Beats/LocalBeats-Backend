@@ -1,8 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const { authenticateJWT } = require("./middleware");
+const jwt = require("jsonwebtoken");
 const axios = require('axios');
 const { User } = require("../database");
+
+const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 
 router.post("/sync", async (req, res) => {
     try {
@@ -13,8 +16,9 @@ router.post("/sync", async (req, res) => {
         }
 
         const spotifyAccessToken = authHeader.split(" ")[1];
-
+        console.log("🧪 Incoming token from frontend:", spotifyAccessToken); //
         // Fetch Spotify profile
+        console.log("🎧 Fetching Spotify profile...");
         const profileRes = await axios.get("https://api.spotify.com/v1/me", {
             headers: {
                 Authorization: `Bearer ${spotifyAccessToken}`,
@@ -52,11 +56,36 @@ router.post("/sync", async (req, res) => {
             await user.save();
         }
 
-        res.status(200).json({ message: "User created or updated", user });
+
+        //  Create JWT with minimal info to identify the user
+        const tokenPayload = {
+            id: user.id,
+            username: user.username,
+            spotifyAccessToken: user.spotify_access_token,
+        };
+
+        const token = jwt.sign(tokenPayload, JWT_SECRET, { expiresIn: "7d" });
+
+        //  Set token as HTTP-only cookie
+        // res.cookie("token", token, {
+        //     httpOnly: true,
+        //     secure: process.env.NODE_ENV === "production",
+        //     sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+        //     maxAge: 24 * 60 * 60 * 1000, // 24 hours
+        // });
+        res.cookie("token", token, {
+            httpOnly: true,
+            secure: true,
+            sameSite: "None", // must be None for cross-site (127.0.0.1 vs localhost)
+            maxAge: 24 * 60 * 60 * 1000,
+        });
+
+        res.status(200).json({ message: "User synced and session created" });
     } catch (error) {
         console.error("Error in spotify user setup:", error.response?.data || error.message);
-        res.status(500).send({ error: 'Failed to create or update user' });
+        res.status(500).send({ error: "Failed to create or update user" });
     }
 });
+
 
 module.exports = router;
