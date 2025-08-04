@@ -6,12 +6,12 @@ const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
 const app = express();
 const apiRouter = require("./api");
-const { router: authRouter } = require("./auth");
+const authRouter = require("./auth");
 const { db } = require("./database");
 const cors = require("cors");
 
 const PORT = process.env.PORT || 8080;
-const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000";
+const FRONTEND_URL = process.env.FRONTEND_URL || "http://127.0.0.1:3000";
 
 // body parser middleware
 app.use(express.json());
