@@ -13,8 +13,9 @@ router.post("/sync", async (req, res) => {
         }
 
         const spotifyAccessToken = authHeader.split(" ")[1];
-
+        console.log("🧪 Incoming token from frontend:", spotifyAccessToken); // ✅ Add this
         // Fetch Spotify profile
+        console.log("🎧 Fetching Spotify profile...");
         const profileRes = await axios.get("https://api.spotify.com/v1/me", {
             headers: {
                 Authorization: `Bearer ${spotifyAccessToken}`,
