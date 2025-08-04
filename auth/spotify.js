@@ -67,11 +67,17 @@ router.post("/sync", async (req, res) => {
         const token = jwt.sign(tokenPayload, JWT_SECRET, { expiresIn: "7d" });
 
         //  Set token as HTTP-only cookie
+        // res.cookie("token", token, {
+        //     httpOnly: true,
+        //     secure: process.env.NODE_ENV === "production",
+        //     sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+        //     maxAge: 24 * 60 * 60 * 1000, // 24 hours
+        // });
         res.cookie("token", token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "Lax",
-            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+            secure: true,
+            sameSite: "None", // must be None for cross-site (127.0.0.1 vs localhost)
+            maxAge: 24 * 60 * 60 * 1000,
         });
 
         res.status(200).json({ message: "User synced and session created" });
