@@ -69,9 +69,9 @@ router.post("/sync", async (req, res) => {
         // Set HTTP-only cookie
         res.cookie("token", token, {
             httpOnly: true,
-            secure: true,
-            sameSite: "None",
-            maxAge: 24 * 60 * 60 * 1000,
+            secure: false,       // false for HTTP (localhost)
+            sameSite: "Lax",     // allows navigation + XHR
+            domain: "127.0.0.1", // must match frontend domain
         });
 
         res.status(200).json({ message: "User synced and session created" });
