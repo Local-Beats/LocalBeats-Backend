@@ -9,7 +9,7 @@ const User = db.define("user", {
     autoIncrement: true,
   },
   username: {
-    type: DataTypes.STRING,
+    type: DataTypes.TEXT,
     allowNull: true,
     unique: true,
     validate: {
@@ -17,25 +17,25 @@ const User = db.define("user", {
     },
   },
   auth0Id: {
-    type: DataTypes.STRING,
+    type: DataTypes.TEXT,
     allowNull: true,
     unique: true,
   },
   // passwordHash: {
-  //   type: DataTypes.STRING,
+  //   type: DataTypes.TEXT,
   //   allowNull: true,
   // },
   spotify_id: {
-    type: DataTypes.STRING,
+    type: DataTypes.TEXT,
     allowNull: false,
     unique: true,
   },
   spotify_access_token: {
-    type: DataTypes.STRING,
+    type: DataTypes.TEXT,
     allowNull: false,
   },
   spotify_email: {
-    type: DataTypes.STRING,
+    type: DataTypes.TEXT,
     allowNull: false,
     unique: true,
     validate: {
@@ -43,14 +43,14 @@ const User = db.define("user", {
     },
   },
   spotify_display_name: {
-    type: DataTypes.STRING,
+    type: DataTypes.TEXT,
     allowNull: true,
     validate: {
       len: [1, 30],
     },
   },
   spotify_image: {
-    type: DataTypes.STRING,
+    type: DataTypes.TEXT,
     allowNull: true,
   },
   location: {
@@ -72,8 +72,8 @@ const User = db.define("user", {
     defaultValue: false,
   },
 }, {
-  underscored: true, // auto adds created_at and updated_at correctly
   timestamps: true,  // enable Sequelize to auto-manage createdAt/updatedAt
+  underscored: true, // auto adds created_at and updated_at correctly
 });
 
 // Instance method to check password
