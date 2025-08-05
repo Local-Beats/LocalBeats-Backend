@@ -15,6 +15,10 @@ const Playlist = db.define("playlist", {
   user_id: {
     type: DataTypes.INTEGER,
     allowNull: false,
+    references: {
+      model: "user",
+      key: "id",
+    },
   },
 }, {
   timestamps: true,  // enable Sequelize to auto-manage createdAt/updatedAt
