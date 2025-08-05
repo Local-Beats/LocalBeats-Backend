@@ -16,10 +16,10 @@ router.post("/sync", async (req, res) => {
         }
 
         const spotifyAccessToken = authHeader.split(" ")[1];
-        console.log("🧪 Incoming token from frontend:", spotifyAccessToken);
+        console.log("Incoming token from frontend:", spotifyAccessToken);
 
         // Fetch Spotify profile
-        console.log("🎧 Fetching Spotify profile...");
+        console.log("Fetching Spotify profile...");
         const profileRes = await axios.get("https://api.spotify.com/v1/me", {
             headers: {
                 Authorization: `Bearer ${spotifyAccessToken}`,
@@ -30,7 +30,7 @@ router.post("/sync", async (req, res) => {
 
         // Create or update DB user
         const auth0Id = "spotify|" + spotifyProfile.id;
-        console.log("✅ Spotify profile received:", {
+        console.log("Spotify profile received:", {
             display_name: spotifyProfile.display_name,
             email: spotifyProfile.email,
             id: spotifyProfile.id,
@@ -76,7 +76,7 @@ router.post("/sync", async (req, res) => {
 
         res.status(200).json({ message: "User synced and session created" });
     } catch (error) {
-        console.error("❌ Error in spotify user setup:", error.response?.data || error.message);
+        console.error("Error in spotify user setup:", error.response?.data || error.message);
         res.status(500).send({ error: "Failed to create or update user" });
     }
 });
@@ -90,7 +90,7 @@ router.get("/current-track", authenticateJWT, async (req, res) => {
             return res.status(401).json({ error: "Spotify access token missing" });
         }
 
-        console.log("🎵 Fetching currently playing track...");
+        console.log("Fetching currently playing track...");
         let trackRes = await axios.get("https://api.spotify.com/v1/me/player/currently-playing", {
             headers: {
                 Authorization: `Bearer ${accessToken}`,
@@ -100,7 +100,7 @@ router.get("/current-track", authenticateJWT, async (req, res) => {
 
         console.log("🎵 Spotify status:", trackRes.status);
         if (trackRes.status === 204 || !trackRes.data || !trackRes.data.item) {
-            console.log("⚠️ No currently playing track found, checking recently played...");
+            console.log("No currently playing track found, checking recently played...");
 
             const recentRes = await axios.get("https://api.spotify.com/v1/me/player/recently-played?limit=1", {
                 headers: {
@@ -134,7 +134,7 @@ router.get("/current-track", authenticateJWT, async (req, res) => {
         });
 
     } catch (err) {
-        console.error("❌ Spotify API error:", err.response?.data || err.message);
+        console.error("Spotify API error:", err.response?.data || err.message);
         if (err.response?.status === 401) {
             return res.status(401).json({ error: "Spotify token expired or unauthorized" });
         }
