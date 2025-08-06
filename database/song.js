@@ -24,13 +24,16 @@ const Song = db.define("song", {
     type: DataTypes.TEXT,
     allowNull: false,
   },
+  album_art: {
+    type: DataTypes.TEXT,
+  },
   image_url: {
     type: DataTypes.TEXT,
     allowNull: true,
   },
   preview_url: {
     type: DataTypes.TEXT,
-    allowNull: false,
+    // allowNull: false,
   },
 }, {
   timestamps: true,  // enable Sequelize to auto-manage createdAt/updatedAt

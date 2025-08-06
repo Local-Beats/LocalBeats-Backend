@@ -124,7 +124,7 @@ router.post("/logout", (req, res) => {
 // Get current user route (protected)---------------------------------------------
 router.get("/me", async (req, res) => {
     const token = req.cookies.token;
-    console.log("🍪 Token from cookie:", token);
+    // console.log("🍪 Token from cookie:", token);
 
     if (!token) {
         console.log("❌ No token found in cookie");
@@ -145,10 +145,10 @@ router.get("/me", async (req, res) => {
                 console.log("❌ No user found in DB");
                 return res.status(404).send({ error: "User not found" });
             }
-            console.log("✅ Full user fetched from DB:", {
-                id: fullUser.id,
-                username: fullUser.username
-            });
+            // console.log("✅ Full user fetched from DB:", {
+            //     id: fullUser.id,
+            //     username: fullUser.username
+            // });
             res.send({ user: fullUser });
         } catch (err) {
             console.error("DB error in /auth/me:", err);

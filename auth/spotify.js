@@ -16,7 +16,7 @@ router.post("/sync", async (req, res) => {
         }
 
         const spotifyAccessToken = authHeader.split(" ")[1];
-        console.log("Incoming token from frontend:", spotifyAccessToken);
+        // console.log("Incoming token from frontend:", spotifyAccessToken);
 
         // Fetch Spotify profile
         console.log("Fetching Spotify profile...");
@@ -30,12 +30,12 @@ router.post("/sync", async (req, res) => {
 
         // Create or update DB user
         const auth0Id = "spotify|" + spotifyProfile.id;
-        console.log("Spotify profile received:", {
-            display_name: spotifyProfile.display_name,
-            email: spotifyProfile.email,
-            id: spotifyProfile.id,
-            image: spotifyProfile.images?.[0]?.url,
-        });
+        // console.log("Spotify profile received:", {
+        //     display_name: spotifyProfile.display_name,
+        //     email: spotifyProfile.email,
+        //     id: spotifyProfile.id,
+        //     image: spotifyProfile.images?.[0]?.url,
+        // });
 
         const [user, created] = await User.findOrCreate({
             where: { auth0Id },
