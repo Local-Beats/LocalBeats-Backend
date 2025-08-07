@@ -66,6 +66,11 @@ const User = db.define("user", {
     allowNull: false,
     defaultValue: true,
   },
+  passwordHash: {
+  type: DataTypes.STRING,
+  allowNull: true,
+},
+
   is_admin: {
     type: DataTypes.BOOLEAN,
     allowNull: false,
@@ -75,6 +80,15 @@ const User = db.define("user", {
   underscored: true, // auto adds created_at and updated_at correctly
   timestamps: true,  // enable Sequelize to auto-manage createdAt/updatedAt
 });
+
+// Helper: get lat/lng from location
+User.prototype.getLatLng = function() {
+  if (!this.location || !this.location.coordinates) return { latitude: null, longitude: null };
+  return {
+    latitude: this.location.coordinates[0],
+    longitude: this.location.coordinates[1]
+  };
+};
 
 // Instance method to check password
 // User.prototype.checkPassword = function (password) {
