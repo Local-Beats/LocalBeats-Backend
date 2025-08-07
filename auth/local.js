@@ -136,7 +136,7 @@ router.get("/me", async (req, res) => {
             console.error("❌ JWT verify error:", err.message);
             return res.status(403).send({ error: "Invalid or expired token" });
         }
-        console.log("✅ Decoded user from token:", decodedUser);
+        // console.log("✅ Decoded user from token:", decodedUser);
 
         try {
             const fullUser = await User.findOne({ where: { id: decodedUser.id } });

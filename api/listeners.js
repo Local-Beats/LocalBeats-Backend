@@ -5,12 +5,17 @@ const { User } = require("../database")
 const { ListeningSession } = require("../database");
 
 router.get("/", authenticateJWT, async (req, res) => {
-    const listeningSession = await ListeningSession.findAll(
-        {
-            where: { status: "playing" || "paused" },
-            include: { User },
+    console.log("End point was hit")
+    const listeningSession = await ListeningSession.findAll({
+        where: { status: "playing" || "paused" },
+        include: {
+            model: User,
             attributes: ["spotify_display_name", "spotify_image"],
-        })
+        },
+
+    })
+    console.log(listeningSession)
+    res.json(listeningSession)
 })
 
 router.post("/", authenticateJWT, async (req, res) => {
