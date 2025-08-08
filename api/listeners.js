@@ -3,9 +3,10 @@ const router = express.Router();
 const { authenticateJWT } = require("../auth/middleware");
 const { User } = require("../database")
 const { ListeningSession } = require("../database");
+const { where } = require('sequelize');
 
 router.get("/", authenticateJWT, async (req, res) => {
-    console.log("End point was hit")
+    // console.log("End point was hit")
     const listeningSession = await ListeningSession.findAll({
         where: { status: "playing" || "paused" },
         include: {
@@ -14,7 +15,7 @@ router.get("/", authenticateJWT, async (req, res) => {
         },
 
     })
-    console.log(listeningSession)
+    // console.log(listeningSession)
     res.json(listeningSession)
 })
 
@@ -37,6 +38,24 @@ router.post("/", authenticateJWT, async (req, res) => {
     res.json(listeningSession);
 
     console.log("created listening session")
+})
+
+
+router.patch("/", authenticateJWT, async (req, res) => {
+    // console.log("patch endpoint being hit-------->")
+
+    const {
+        status,
+        id,
+    } = req.body;
+
+    const currentSession = await ListeningSession.findOne({
+        where: { id: id }
+    });
+    // console.log("this is current session", currentSession.toJSON())
+
+    currentSession.status = status
+    await currentSession.save();
 })
 
 
