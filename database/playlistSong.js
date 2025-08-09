@@ -11,7 +11,7 @@ const PlaylistSong = db.define("playlist_song", {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: "song",
+      model: "songs",
       key: "id",
     },
   },
@@ -19,7 +19,7 @@ const PlaylistSong = db.define("playlist_song", {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: "playlist",
+      model: "playlists",
       key: "id",
     },
   },
