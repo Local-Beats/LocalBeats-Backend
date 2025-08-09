@@ -5,30 +5,75 @@ const Playlist = require("./playlist");
 const PlaylistSong = require("./playlistSong");
 const ListeningSession = require("./listeningSession");
 
-// Local Beats database table associations
-// All associations are one-to-many
 
-// playlist_user: user.id < playlist.user_id
-User.hasMany(Playlist);
-Playlist.belongsTo(User);
+// USER ↔ PLAYLIST (one-to-many)
+User.hasMany(Playlist, {
+  foreignKey: 'user_id',
+  onDelete: 'CASCADE',
+  onUpdate: 'CASCADE',
+});
+Playlist.belongsTo(User, {
+  foreignKey: 'user_id',
+});
 
-// session_user: user.id < listening_session.user_id
-User.hasMany(ListeningSession);
-ListeningSession.belongsTo(User);
 
-// session_song: song.id < listening_session.song_id
-Song.hasMany(ListeningSession);
-ListeningSession.belongsTo(Song);
+// USER ↔ LISTENING_SESSION (one-to-many)
+User.hasMany(ListeningSession, {
+  foreignKey: 'user_id',
+  onDelete: 'CASCADE',
+  onUpdate: 'CASCADE',
+});
+ListeningSession.belongsTo(User, {
+  foreignKey: 'user_id',
+});
 
-// playlist_track: song.id < playlist_song.song_id 
-Song.hasMany(PlaylistSong);
-PlaylistSong.belongsTo(Song);
 
-// track_playlist: playlist.id < playlist_song.playlist_id
-Playlist.hasMany(PlaylistSong);
-PlaylistSong.belongsTo(Playlist);
+// SONG ↔ LISTENING_SESSION (one-to-many)
+Song.hasMany(ListeningSession, {
+  foreignKey: 'song_id',
+  onDelete: 'CASCADE',
+  onUpdate: 'CASCADE',
+});
+ListeningSession.belongsTo(Song, {
+  foreignKey: 'song_id',
+});
 
-// Database model exports
+
+// SONG ↔ PLAYLIST_SONG (one-to-many)
+Song.hasMany(PlaylistSong, {
+  foreignKey: 'song_id',
+  onDelete: 'CASCADE',
+  onUpdate: 'CASCADE',
+});
+PlaylistSong.belongsTo(Song, {
+  foreignKey: 'song_id',
+});
+
+
+// PLAYLIST ↔ PLAYLIST_SONG (one-to-many)
+Playlist.hasMany(PlaylistSong, {
+  foreignKey: 'playlist_id',
+  onDelete: 'CASCADE',
+  onUpdate: 'CASCADE',
+});
+PlaylistSong.belongsTo(Playlist, {
+  foreignKey: 'playlist_id',
+});
+
+
+
+// many to many just in case
+Playlist.belongsToMany(Song, {
+  through: PlaylistSong,
+  foreignKey: 'playlist_id',
+  otherKey: 'song_id',
+});
+Song.belongsToMany(Playlist, {
+  through: PlaylistSong,
+  foreignKey: 'song_id',
+  otherKey: 'playlist_id',
+});
+
 module.exports = {
   db,
   User,

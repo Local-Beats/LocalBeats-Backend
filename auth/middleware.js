@@ -5,7 +5,7 @@ const JWT_SECRET = process.env.JWT_SECRET;
 
 // Middleware to authenticate JWT tokens
 const authenticateJWT = (req, res, next) => {
-    console.log("[AUTH] Incoming cookies:", req.cookies); // Add this line
+    // console.log("[AUTH] Incoming cookies:", req.cookies);
 
     const token = req.cookies.token;
 
@@ -20,7 +20,7 @@ const authenticateJWT = (req, res, next) => {
             return res.status(403).send({ error: "Invalid or expired token" });
         }
 
-        console.log("[AUTH] JWT verified, user payload:", user);
+        // console.log("[AUTH] JWT verified, user payload:", user);
         req.user = user;
         next();
     });

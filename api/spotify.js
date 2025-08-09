@@ -1,10 +1,11 @@
 
 const express = require("express");
 const router = express.Router();
-const { authenticateJWT } = require("./middleware");
+const { authenticateJWT } = require("../auth/middleware");
 const jwt = require("jsonwebtoken");
 const axios = require('axios');
-const { User } = require("../database");
+const { User, Song, ListeningSession } = require("../database");
+
 
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 
@@ -35,13 +36,13 @@ router.get("/debug/user", authenticateJWT, async (req, res) => {
 router.get("/current-track", authenticateJWT, async (req, res) => {
     try {
         const accessToken = req.user.spotifyAccessToken;
-        console.log("[DEBUG] JWT payload:", req.user);
+        // console.log("[DEBUG] JWT payload:", req.user);
         if (!accessToken) {
             console.log("[ERROR] No spotifyAccessToken in JWT payload");
             return res.status(401).json({ error: "Spotify access token missing" });
         }
 
-        console.log("🎵 Fetching currently playing track with accessToken:", accessToken);
+        // console.log("🎵 Fetching currently playing track with accessToken:", accessToken);
         let trackRes = await axios.get("https://api.spotify.com/v1/me/player/currently-playing", {
             headers: {
                 Authorization: `Bearer ${accessToken}`,
@@ -49,7 +50,8 @@ router.get("/current-track", authenticateJWT, async (req, res) => {
             validateStatus: status => true // Allow handling of 204
         });
 
-        console.log("🎵 Spotify status:", trackRes.status, "Response:", trackRes.data);
+
+        // console.log("🎵 Spotify status:", trackRes.status, "Response:", trackRes.data);
         if (trackRes.status === 204 || !trackRes.data || !trackRes.data.item) {
             console.log("⚠️ No currently playing track found, checking recently played...");
 
@@ -58,31 +60,61 @@ router.get("/current-track", authenticateJWT, async (req, res) => {
                     Authorization: `Bearer ${accessToken}`,
                 },
             });
-            console.log("[DEBUG] Recently played response:", recentRes.data);
+            // console.log("[DEBUG] Recently played response:", recentRes.data);
 
             const recentTrack = recentRes.data.items?.[0]?.track;
             if (!recentTrack) {
                 return res.status(404).json({ error: "No recent tracks found" });
             }
 
-            return res.json({
-                spotifyTrackId: recentTrack.id,
-                title: recentTrack.name,
-                artist: recentTrack.artists.map(a => a.name).join(", "),
-                albumArt: recentTrack.album.images?.[0]?.url || null,
-                preview_url: recentTrack.preview_url,
-                source: "recently-played"
-            });
+            if (recent)
+
+                return res.json({
+                    spotifyTrackId: recentTrack.id,
+                    title: recentTrack.name,
+                    artist: recentTrack.artists.map(a => a.name).join(", "),
+                    albumArt: recentTrack.album.images?.[0]?.url || null,
+                    preview_url: recentTrack.preview_url,
+                    source: "recently-played"
+                });
         }
 
         const currentTrack = trackRes.data.item;
-        console.log("[DEBUG] Currently playing track:", currentTrack);
+
+
+        // add new song to our DB
+        if (currentTrack) {
+            const [song, created] = await Song.findOrCreate({
+                where: { spotify_track_id: currentTrack.id },
+                defaults: {
+                    spotify_track_id: currentTrack.id,
+                    title: currentTrack.name,
+                    artist: currentTrack.artists.map(a => a.name).join(", "),
+                    album: currentTrack.album.name,
+                    album_art: currentTrack.album.images?.[0]?.url || null,
+                    image_url: currentTrack.album.images?.[0]?.url || null,
+                    preview_url: currentTrack.preview_url,
+                }
+            })
+            if (!created) {
+                console.log("this song has already been added")
+            }
+        }
+
+        const songId = await Song.findOne(
+            {
+                where: { spotify_track_id: currentTrack.id }
+            }
+        )
+
+        // console.log("[DEBUG] Currently playing track:", currentTrack);
         return res.json({
             spotifyTrackId: currentTrack.id,
             title: currentTrack.name,
             artist: currentTrack.artists.map(a => a.name).join(", "),
             albumArt: currentTrack.album.images?.[0]?.url || null,
             preview_url: currentTrack.preview_url,
+            song_id: songId.id,
             source: "currently-playing"
         });
 

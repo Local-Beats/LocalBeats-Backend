@@ -16,7 +16,7 @@ const Playlist = db.define("playlist", {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: "user",
+      model: "users",
       key: "id",
     },
   },

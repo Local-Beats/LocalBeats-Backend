@@ -19,7 +19,7 @@ const ListeningSession = db.define("listening_session", {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: "user",
+      model: "users",
       key: "id",
     },
   },
@@ -27,7 +27,7 @@ const ListeningSession = db.define("listening_session", {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: "song",
+      model: "songs",
       key: "id",
     },
   },
