@@ -16,9 +16,14 @@ const FRONTEND_URL = process.env.FRONTEND_URL || "http://127.0.0.1:3000";
 // body parser middleware
 app.use(express.json());
 
+const allowedOrigins = [
+  "http://127.0.0.1:3000",
+  "https://local-beats-frontend.vercel.app"
+]
+
 app.use(
   cors({
-    origin: FRONTEND_URL,
+    origin: allowedOrigins,
     credentials: true,
   })
 );
