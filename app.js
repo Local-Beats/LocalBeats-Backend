@@ -18,17 +18,18 @@ app.use(express.json());
 
 const allowed = [
   "http://127.0.0.1:3000",
-  "local-beats-backend.vercel.app",
+  "https://local-beats-frontend.vercel.app",
 ];
 
-
-const previewRegex = /^https:\/\/local-beats-backend-.*\.vercel\.app$/;
+const previewRegex = /^https:\/\/local-beats-frontend-.*\.vercel\.app$/;
 
 app.use(
   cors({
     origin: (origin, cb) => {
-      if (!origin || allowed.includes(origin) || previewRegex.test(origin)) return cb(null, true);
-      cb(new Error("not allowed by cors"))
+      if (!origin || allowed.includes(origin) || previewRegex.test(origin)) {
+        return cb(null, true);
+      }
+      cb(new Error("Not allowed by CORS"));
     },
     credentials: true,
   })
