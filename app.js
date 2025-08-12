@@ -16,14 +16,9 @@ const FRONTEND_URL = process.env.FRONTEND_URL || "http://127.0.0.1:3000";
 // body parser middleware
 app.use(express.json());
 
-const allowedOrigins = [
-  "http://127.0.0.1:3000",
-  "https://local-beats-frontend.vercel.app"
-]
-
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin: FRONTEND_URL,
     credentials: true,
   })
 );
@@ -35,6 +30,8 @@ app.use(morgan("dev")); // logging middleware
 app.use(express.static(path.join(__dirname, "public"))); // serve static files from public folder
 app.use("/api", apiRouter); // mount api router
 app.use("/auth", authRouter); // mount auth router
+
+app.get("/health", (req, res => res.json({ ok: true })))
 
 // error handling middleware
 app.use((err, req, res, next) => {
