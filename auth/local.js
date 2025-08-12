@@ -4,6 +4,8 @@ const jwt = require("jsonwebtoken");
 const { User } = require("../database");
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 
+const isProd = process.env.NODE_ENV === "production";
+
 // Signup route---------------------------------------------------------------
 router.post("/signup", async (req, res) => {
     try {
@@ -45,9 +47,9 @@ router.post("/signup", async (req, res) => {
 
         res.cookie("token", token, {
             httpOnly: true,
-            secure: true,
-            sameSite: "strict",
-            maxAge: 24 * 60 * 60 * 1000, // 24 hours
+            secure: isProd,                      // ❗ false in dev
+            sameSite: isProd ? "None" : "Lax",   // ❗ Lax in dev, None in prod
+            maxAge: 24 * 60 * 60 * 1000,
         });
 
         res.send({
@@ -98,9 +100,9 @@ router.post("/login", async (req, res) => {
 
         res.cookie("token", token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production" || req.secure,
-            sameSite: "strict",
-            maxAge: 24 * 60 * 60 * 1000, // 24 hours
+            secure: false,            // ❌ must be false on localhost
+            sameSite: "None",         // ✅ required for cross-origin cookies
+            maxAge: 24 * 60 * 60 * 1000,
         });
 
         res.send({

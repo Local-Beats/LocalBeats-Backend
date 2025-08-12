@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken")
 const { User } = require("../database");
 
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
+const isProd = process.env.NODE_ENV === "production";
 
 // Auth0 authentication route
 router.post("/", async (req, res) => {
@@ -63,9 +64,9 @@ router.post("/", async (req, res) => {
 
         res.cookie("token", token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-            maxAge: 24 * 60 * 60 * 1000, // 24 hours
+            secure: isProd,                      // ❗ false in dev
+            sameSite: isProd ? "None" : "Lax",   // ❗ Lax in dev, None in prod
+            maxAge: 24 * 60 * 60 * 1000,
         });
 
         res.send({
