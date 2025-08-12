@@ -35,8 +35,14 @@ app.get("/health", (_req, res) => res.json({ ok: true }));
 
 app.get("/health/db", async (_req, res) => {
   try {
-    const { db } = require("./database/db"); // make sure this file does NOT call sync() on import
-    await db.authenticate();
+    // show which host we’re trying to reach (no secrets)
+    const raw = process.env.POSTGRES_URL || process.env.DATABASE_URL || "";
+    try {
+      const u = new URL(raw);
+      console.log("DB host:", u.host);
+    } catch { }
+
+    await db.authenticate();       // only checks connection, not tables
     res.json({ db: "ok" });
   } catch (e) {
     console.error("DB health error:", e);
