@@ -4,6 +4,8 @@ const jwt = require("jsonwebtoken");
 const { User } = require("../database");
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 
+const isProd = process.env.NODE_ENV === "production";
+
 // Signup route---------------------------------------------------------------
 router.post("/signup", async (req, res) => {
     try {
@@ -45,10 +47,9 @@ router.post("/signup", async (req, res) => {
 
         res.cookie("token", token, {
             httpOnly: true,
-            secure: false, // for local dev
-            sameSite: "lax", // for local dev
-            // domain: "127.0.0.1", // optional
-            maxAge: 24 * 60 * 60 * 1000, // 24 hours
+            secure: isProd,                      // false in dev
+            sameSite: isProd ? "None" : "Lax",   // Lax in dev, None in prod
+            maxAge: 24 * 60 * 60 * 1000,         // 24 hours
         });
 
         res.send({
@@ -60,7 +61,6 @@ router.post("/signup", async (req, res) => {
         res.sendStatus(500);
     }
 });
-
 
 
 // Login route--------------------------------------------------------------------
@@ -75,13 +75,7 @@ router.post("/login", async (req, res) => {
 
         // Find user
         const user = await User.findOne({ where: { username } });
-        user.checkPassword(password);
         if (!user || !user.checkPassword(password)) {
-            return res.status(401).send({ error: "Invalid credentials" });
-        }
-
-        // Check password
-        if (!user.checkPassword(password)) {
             return res.status(401).send({ error: "Invalid credentials" });
         }
 
@@ -99,10 +93,9 @@ router.post("/login", async (req, res) => {
 
         res.cookie("token", token, {
             httpOnly: true,
-            secure: false, // for local dev
-            sameSite: "lax", // for local dev
-            // domain: "127.0.0.1", // optional
-            maxAge: 24 * 60 * 60 * 1000, // 24 hours
+            secure: isProd,                      // false in dev
+            sameSite: isProd ? "None" : "Lax",   // Lax in dev, None in prod
+            maxAge: 24 * 60 * 60 * 1000,         // 24 hours
         });
 
         res.send({
@@ -121,12 +114,9 @@ router.post("/logout", (req, res) => {
     res.send({ message: "Logout successful" });
 });
 
-
-
 // Get current user route (protected)---------------------------------------------
 router.get("/me", async (req, res) => {
     const token = req.cookies.token;
-    console.log("🍪 Token from cookie:", token);
 
     if (!token) {
         console.log("❌ No token found in cookie");
@@ -138,7 +128,6 @@ router.get("/me", async (req, res) => {
             console.error("❌ JWT verify error:", err.message);
             return res.status(403).send({ error: "Invalid or expired token" });
         }
-        console.log("✅ Decoded user from token:", decodedUser);
 
         try {
             const fullUser = await User.findOne({ where: { id: decodedUser.id } });
@@ -147,10 +136,7 @@ router.get("/me", async (req, res) => {
                 console.log("❌ No user found in DB");
                 return res.status(404).send({ error: "User not found" });
             }
-            console.log("✅ Full user fetched from DB:", {
-                id: fullUser.id,
-                username: fullUser.username
-            });
+
             res.send({ user: fullUser });
         } catch (err) {
             console.error("DB error in /auth/me:", err);

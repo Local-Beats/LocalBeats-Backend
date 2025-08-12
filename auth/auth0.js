@@ -1,9 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const jwt = require("jsonwebtoken")
+const jwt = require("jsonwebtoken");
 const { User } = require("../database");
 
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
+const isProd = process.env.NODE_ENV === "production";
+
 // Get current Auth0 user route (protected)
 router.get("/me", async (req, res) => {
     const token = req.cookies.token;
@@ -96,8 +98,8 @@ router.post("/", async (req, res) => {
 
         res.cookie("token", token, {
             httpOnly: true,
-            secure: false, // <--- for local dev
-            sameSite: "lax", // <--- for cross-origin dev
+            secure: isProd,                      // false in dev
+            sameSite: isProd ? "None" : "Lax",   // Lax in dev, None in prod
             maxAge: 24 * 60 * 60 * 1000,
         });
 
@@ -117,3 +119,4 @@ router.post("/", async (req, res) => {
 });
 
 module.exports = router;
+
