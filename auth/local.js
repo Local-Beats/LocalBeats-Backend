@@ -45,8 +45,9 @@ router.post("/signup", async (req, res) => {
 
         res.cookie("token", token, {
             httpOnly: true,
-            secure: true,
-            sameSite: "strict",
+            secure: false, // for local dev
+            sameSite: "lax", // for local dev
+            // domain: "127.0.0.1", // optional
             maxAge: 24 * 60 * 60 * 1000, // 24 hours
         });
 
@@ -98,8 +99,9 @@ router.post("/login", async (req, res) => {
 
         res.cookie("token", token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production" || req.secure,
-            sameSite: "strict",
+            secure: false, // for local dev
+            sameSite: "lax", // for local dev
+            // domain: "127.0.0.1", // optional
             maxAge: 24 * 60 * 60 * 1000, // 24 hours
         });
 

@@ -4,6 +4,39 @@ const jwt = require("jsonwebtoken")
 const { User } = require("../database");
 
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
+// Get current Auth0 user route (protected)
+router.get("/me", async (req, res) => {
+    const token = req.cookies.token;
+    console.log("🍪 [Auth0] Token from cookie:", token);
+
+    if (!token) {
+        console.log("❌ [Auth0] No token found in cookie");
+        return res.send({});
+    }
+
+    jwt.verify(token, JWT_SECRET, async (err, decodedUser) => {
+        if (err) {
+            console.error("❌ [Auth0] JWT verify error:", err.message);
+            return res.status(403).send({ error: "Invalid or expired token" });
+        }
+        console.log("✅ [Auth0] Decoded user from token:", decodedUser);
+        try {
+            const fullUser = await require("../database").User.findOne({ where: { id: decodedUser.id } });
+            if (!fullUser) {
+                console.log("❌ [Auth0] No user found in DB");
+                return res.status(404).send({ error: "User not found" });
+            }
+            console.log("✅ [Auth0] Full user fetched from DB:", {
+                id: fullUser.id,
+                username: fullUser.username
+            });
+            res.send({ user: fullUser });
+        } catch (err) {
+            console.error("[Auth0] DB error in /auth/me:", err);
+            res.status(500).send({ error: "Failed to fetch user" });
+        }
+    });
+});
 
 // Auth0 authentication route
 router.post("/", async (req, res) => {
@@ -63,9 +96,9 @@ router.post("/", async (req, res) => {
 
         res.cookie("token", token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
-            maxAge: 24 * 60 * 60 * 1000, // 24 hours
+            secure: false, // <--- for local dev
+            sameSite: "lax", // <--- for cross-origin dev
+            maxAge: 24 * 60 * 60 * 1000,
         });
 
         res.send({
