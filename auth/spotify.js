@@ -69,9 +69,8 @@ router.post("/sync", async (req, res) => {
         // Set HTTP-only cookie
         res.cookie("token", token, {
             httpOnly: true,
-            secure: false,       // false for HTTP (localhost)
-            sameSite: "Lax",     // allows navigation + XHR
-            domain: "127.0.0.1", // must match frontend domain
+            secure: process.env.NODE_ENV === "production", // true only in prod
+            sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
         });
 
         res.status(200).json({ message: "User synced and session created" });
