@@ -34,9 +34,6 @@ app.use(
     credentials: true,
   })
 );
-
-if (process.env.NODE_ENV === "production") app.set("trust proxy", 1);
-
 // cookie parser middleware
 app.use(cookieParser());
 

@@ -6,6 +6,7 @@ const axios = require('axios');
 const { User } = require("../database");
 
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
+const isProd = process.env.NODE_ENV === "production";
 
 // SYNC USER AND CREATE JWT
 router.post("/sync", async (req, res) => {
@@ -69,8 +70,9 @@ router.post("/sync", async (req, res) => {
         // Set HTTP-only cookie
         res.cookie("token", token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production", // true only in prod
-            sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+            secure: isProd,                      // ❗ false in dev
+            sameSite: isProd ? "None" : "Lax",   // ❗ Lax in dev, None in prod
+            maxAge: 24 * 60 * 60 * 1000,
         });
 
         res.status(200).json({ message: "User synced and session created" });
