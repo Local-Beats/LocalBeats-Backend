@@ -31,7 +31,18 @@ app.use(express.static(path.join(__dirname, "public"))); // serve static files f
 app.use("/api", apiRouter); // mount api router
 app.use("/auth", authRouter); // mount auth router
 
-app.get("/health", (req, res => res.json({ ok: true })))
+app.get("/health", (_req, res) => res.json({ ok: true }));
+
+app.get("/health/db", async (_req, res) => {
+  try {
+    const { db } = require("./database/db"); // make sure this file does NOT call sync() on import
+    await db.authenticate();
+    res.json({ db: "ok" });
+  } catch (e) {
+    console.error("DB health error:", e);
+    res.status(500).json({ db: "down", error: e.message });
+  }
+});
 
 // error handling middleware
 app.use((err, req, res, next) => {
