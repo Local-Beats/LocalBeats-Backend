@@ -16,12 +16,25 @@ const FRONTEND_URL = process.env.FRONTEND_URL || "http://127.0.0.1:3000";
 // body parser middleware
 app.use(express.json());
 
+const allowed = [
+  "http://127.0.0.1:3000",
+  "local-beats-backend.vercel.app",
+];
+
+
+const previewRegex = /^https:\/\/local-beats-backend-.*\.vercel\.app$/;
+
 app.use(
   cors({
-    origin: FRONTEND_URL,
+    origin: (origin, cb) => {
+      if (!origin || allowed.includes(origin) || previewRegex.test(origin)) return cb(null, true);
+      cb(new Error("not allowed by cors"))
+    },
     credentials: true,
   })
 );
+
+if (process.env.NODE_ENV === "production") app.set("trust proxy", 1);
 
 // cookie parser middleware
 app.use(cookieParser());
