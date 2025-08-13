@@ -2,25 +2,27 @@ require("dotenv").config();
 const express = require("express");
 const morgan = require("morgan");
 const path = require("path");
-const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
+const cors = require("cors");
 const app = express();
-const apiRouter = require("./api");
+
+const apiRouter = require("./api"); // make sure this path points to your index.js with routes
 const authRouter = require("./auth");
 const { db } = require("./database");
-const cors = require("cors");
 
 const PORT = process.env.PORT || 8080;
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://127.0.0.1:3000";
 
-// body parser middleware
+// Middleware
 app.use(express.json());
+app.use(cookieParser());
+app.use(morgan("dev"));
 
+// CORS setup
 const allowed = [
   "http://127.0.0.1:3000",
   "https://local-beats-frontend.vercel.app",
 ];
-
 const previewRegex = /^https:\/\/local-beats-frontend-.*\.vercel\.app$/;
 
 app.use(
@@ -34,26 +36,26 @@ app.use(
     credentials: true,
   })
 );
-// cookie parser middleware
-app.use(cookieParser());
 
-app.use(morgan("dev")); // logging middleware
-app.use(express.static(path.join(__dirname, "public"))); // serve static files from public folder
-app.use("/api", apiRouter); // mount api router
-app.use("/auth", authRouter); // mount auth router
+// Static files
+app.use(express.static(path.join(__dirname, "public")));
 
+// Routes
+app.use("/api", apiRouter);
+app.use("/auth", authRouter);
+
+// Health checks
 app.get("/health", (_req, res) => res.json({ ok: true }));
-
 app.get("/health/db", async (_req, res) => {
   try {
-    // show which host we’re trying to reach (no secrets)
     const raw = process.env.POSTGRES_URL || process.env.DATABASE_URL || "";
     try {
       const u = new URL(raw);
       console.log("DB host:", u.host);
-    } catch { }
-
-    await db.authenticate();       // only checks connection, not tables
+    } catch {
+      console.log("DB URL not valid for host extraction");
+    }
+    await db.authenticate();
     res.json({ db: "ok" });
   } catch (e) {
     console.error("DB health error:", e);
@@ -61,17 +63,18 @@ app.get("/health/db", async (_req, res) => {
   }
 });
 
-// error handling middleware
+// Error handling
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.sendStatus(500);
 });
 
+// Start server
 const runApp = async () => {
   try {
     await db.sync();
     console.log("✅ Connected to the database");
-    app.listen(PORT, '127.0.0.1', () => {
+    app.listen(PORT, "127.0.0.1", () => {
       console.log(`🚀 Server is running on port ${PORT}`);
     });
   } catch (err) {
@@ -80,5 +83,4 @@ const runApp = async () => {
 };
 
 runApp();
-
 module.exports = app;
