@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { authenticateJWT } = require("../auth/middleware");
-const { User } = require("../database")
+const { User, Song } = require("../database")
 const { ListeningSession } = require("../database");
 const { Op } = require('sequelize');
 
@@ -13,10 +13,17 @@ router.get("/", authenticateJWT, async (req, res) => {
     try {
         const sessions = await ListeningSession.findAll({
             where: { status: { [Op.in]: ["playing", "paused"] } },
-            include: [{
-                model: User,
-                attributes: ["spotify_display_name", "spotify_image"],
-            }],
+            include: [
+                {
+                    model: User,
+                    // as: "user",
+                    attributes: ["spotify_display_name", "spotify_image"],
+                },
+                {
+                    model: Song,
+                    // as: "track",
+                    attributes: ["id", "title", "artist", "album_art", "album"]
+                }],
             order: [["updated_at", "DESC"]]
         });
         res.json(sessions)
