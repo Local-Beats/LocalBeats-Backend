@@ -16,17 +16,32 @@ router.get("/", authenticateJWT, async (req, res) => {
             include: [
                 {
                     model: User,
-                    // as: "user",
-                    attributes: ["spotify_display_name", "spotify_image"],
+                    attributes: ["id", "username", "spotify_display_name", "spotify_image"],
                 },
                 {
                     model: Song,
-                    // as: "track",
-                    attributes: ["id", "title", "artist", "album_art", "album"]
-                }],
+                    attributes: ["id", "title", "artist", "album_art", "album", "spotify_track_id"]
+                }
+            ],
             order: [["updated_at", "DESC"]]
         });
-        res.json(sessions)
+
+        // Format the response to match the required structure
+        const formatted = sessions.map(session => ({
+            user: {
+                id: session.user?.id,
+                username: session.user?.username,
+                spotify_display_name: session.user?.spotify_display_name,
+                spotify_image: session.user?.spotify_image,
+            },
+            song: session.song ? {
+                title: session.song.title,
+                artist: session.song.artist,
+                album_art: session.song.album_art,
+                spotify_track_id: session.song.spotify_track_id,
+            } : null
+        }));
+        res.json(formatted);
     } catch (error) {
         console.log("failed to fetch all listening sessions")
         res.status(500).json({ error: "Failed to get all listening sessions" })

@@ -44,6 +44,7 @@ router.get("/online", authenticateJWT, async (req, res) => {
       const coords = extractLatLng(u.location);
       if (!coords) continue; // skip malformed locations
       mapped.push({
+        id: u.id,
         username: u.username,
         latitude: coords.latitude,
         longitude: coords.longitude,
