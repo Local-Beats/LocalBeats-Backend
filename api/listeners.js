@@ -16,7 +16,7 @@ router.get("/", authenticateJWT, async (req, res) => {
         {
           model: User,
           // as: "user",
-          attributes: ["spotify_display_name", "spotify_image"],
+          attributes: ["id", "username", "spotify_display_name", "spotify_image"],
         },
         {
           model: Song,
@@ -59,6 +59,7 @@ router.post("/", authenticateJWT, async (req, res) => {
       { status: "stopped", ended_at: new Date() },
       {
         where: { user_id: user_id, status: { [Op.in]: ["playing", "paused"] } },
+        updated_at: { [Op.lte]: new Date(Date.now() - 30 * 60 * 1000) }
       }
     );
     const session = await ListeningSession.create({
