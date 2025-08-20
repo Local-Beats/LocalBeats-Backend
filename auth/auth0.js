@@ -96,10 +96,17 @@ router.post("/", async (req, res) => {
             { expiresIn: "24h" }
         );
 
+        // res.cookie("token", token, {
+        //     httpOnly: true,
+        //     secure: isProd,                      // false in dev
+        //     sameSite: isProd ? "None" : "Lax",   // Lax in dev, None in prod
+        //     maxAge: 24 * 60 * 60 * 1000,
+        // });
+
         res.cookie("token", token, {
             httpOnly: true,
-            secure: isProd,                      // false in dev
-            sameSite: isProd ? "None" : "Lax",   // Lax in dev, None in prod
+            secure: true,         // ✅ Required for iOS Safari
+            sameSite: "None",     // ✅ Required for Auth0 cross-origin
             maxAge: 24 * 60 * 60 * 1000,
         });
 
